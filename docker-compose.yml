@@ -1,0 +1,42 @@
+version: '3.1'
+
+services:
+
+  db:
+    image: postgres
+    container_name: postgreSQLCon
+    restart: always
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: example
+    ports:
+      - 5432:5432 #important to configure vault with postgreSQL
+
+
+  adminer:
+    image: adminer
+    container_name: adminerCon
+    restart: always
+    ports:
+      - 8080:8080
+
+
+  vault:
+      image: vault:latest
+      container_name: vaultCon
+      volumes:
+         - ../vault/config:/vault/config
+         - ../vault/policies:/vault/policies
+         - ../vault/data:/vault/data
+         - ../vault/logs:/vault/logs
+         - ../vault/tests:/vault/tests
+      ports:
+        - 8200:8200
+      environment:
+        - VAULT_ADDR=http://127.0.0.1:8200
+      cap_add:
+        - IPC_LOCK
+      command: ['vault', 'server', '-config=/vault/config/config.hcl']
+      # command: ['vault', 'server', '-config=/vault/config/vault-config.json']
+
+
